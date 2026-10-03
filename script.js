@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
        AI BACKEND
     ========================================= */
 
-    const AI_API_URL = "http://127.0.0.1:8000";
+    const AI_API_URL = "https://studybuddy-ai-miun.onrender.com";
 
 
     /* =========================================
@@ -67,11 +67,15 @@ document.addEventListener("DOMContentLoaded", () => {
         let filteredTasks = tasks;
 
         if (currentFilter === "active") {
-            filteredTasks = tasks.filter(task => !task.completed);
+            filteredTasks = tasks.filter(
+                task => !task.completed
+            );
         }
 
         if (currentFilter === "completed") {
-            filteredTasks = tasks.filter(task => task.completed);
+            filteredTasks = tasks.filter(
+                task => task.completed
+            );
         }
 
         if (currentFilter === "high") {
@@ -215,7 +219,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         updateProgress();
 
-        updateVisibleTaskCount(filteredTasks.length);
+        updateVisibleTaskCount(
+            filteredTasks.length
+        );
 
     }
 
@@ -720,7 +726,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
             aiStatus.textContent =
-                "⚠️ Could not connect to the AI backend. Make sure your FastAPI server is running.";
+                "⚠️ Could not connect to the AI backend. Please try again.";
 
             aiResult.hidden = true;
 
