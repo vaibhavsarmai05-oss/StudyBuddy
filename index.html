@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="description"
+        content="StudyBuddy is a simple study companion for planning tasks, focusing, taking notes, and tracking progress."
+    >
+
+    <title>StudyBuddy — Study Smarter</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+
+    <header class="site-header">
+
+        <div class="header-content">
+
+            <div class="brand">
+                <span class="brand-icon">📚</span>
+
+                <div>
+                    <h1>StudyBuddy</h1>
+                    <p>Your simple companion for better studying.</p>
+                </div>
+            </div>
+
+            <button
+                id="themeToggle"
+                class="theme-toggle"
+                aria-label="Toggle dark mode"
+                title="Toggle dark mode"
+            >
+                🌙
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main>
+
+        <!-- Hero -->
+
+        <section class="hero">
+
+            <div class="hero-content">
+
+                <span class="hero-label">
+                    ✨ Built for students
+                </span>
+
+                <h2>
+                    Study smarter.<br>
+                    Stay consistent.
+                </h2>
+
+                <p>
+                    Organize your study tasks, focus with a timer,
+                    save quick notes, and see your progress — all in one place.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= DASHBOARD ================= -->
+
+        <section class="dashboard">
+
+            <!-- Progress Overview -->
+
+            <div class="overview-card">
+
+                <div>
+
+                    <span class="overview-label">
+                        TODAY'S PROGRESS
+                    </span>
+
+                    <h2>
+                        Keep going! 🚀
+                    </h2>
+
+                    <p>
+                        <strong id="completedTasks">0</strong>
+                        of
+                        <strong id="totalTasks">0</strong>
+                        tasks completed
+                    </p>
+
+                </div>
+
+                <div class="progress-circle">
+                    <span id="progressPercentage">0%</span>
+                </div>
+
+            </div>
+
+
+            <!-- ================= TASKS ================= -->
+
+            <section class="card tasks-card">
+
+                <div class="card-heading">
+
+                    <div>
+                        <span class="section-label">
+                            PRODUCTIVITY
+                        </span>
+
+                        <h2>📝 Study Tasks</h2>
+                    </div>
+
+                </div>
+
+
+                <!-- Task Input -->
+
+                <div class="task-input">
+
+                    <input
+                        type="text"
+                        id="taskInput"
+                        placeholder="What do you need to study?"
+                        maxlength="120"
+                    >
+
+                    <select id="priorityInput" aria-label="Task priority">
+
+                        <option value="high">
+                            🔴 High
+                        </option>
+
+                        <option value="medium" selected>
+                            🟡 Medium
+                        </option>
+
+                        <option value="low">
+                            🟢 Low
+                        </option>
+
+                    </select>
+
+                    <button id="addTaskBtn">
+                        + Add Task
+                    </button>
+
+                </div>
+
+
+                <!-- Filters -->
+
+                <div class="task-toolbar">
+
+                    <div class="task-filters">
+
+                        <button
+                            class="filter-btn active"
+                            data-filter="all"
+                        >
+                            All
+                        </button>
+
+                        <button
+                            class="filter-btn"
+                            data-filter="active"
+                        >
+                            Active
+                        </button>
+
+                        <button
+                            class="filter-btn"
+                            data-filter="completed"
+                        >
+                            Completed
+                        </button>
+
+                        <button
+                            class="filter-btn"
+                            data-filter="high"
+                        >
+                            🔴 High Priority
+                        </button>
+
+                    </div>
+
+                    <span id="visibleTaskCount" class="task-count">
+                        0 tasks
+                    </span>
+
+                </div>
+
+
+                <!-- Task List -->
+
+                <ul id="taskList"></ul>
+
+            </section>
+
+
+            <!-- ================= TWO COLUMN AREA ================= -->
+
+            <div class="two-column">
+
+
+                <!-- Focus Timer -->
+
+                <section class="card timer-card">
+
+                    <div class="card-heading">
+
+                        <div>
+                            <span class="section-label">
+                                FOCUS
+                            </span>
+
+                            <h2>⏱️ Focus Timer</h2>
+                        </div>
+
+                    </div>
+
+
+                    <div id="timer">
+                        25:00
+                    </div>
+
+                    <p class="timer-description">
+                        Take one task at a time. Stay focused for 25 minutes.
+                    </p>
+
+
+                    <div class="timer-buttons">
+
+                        <button
+                            id="startTimerBtn"
+                            class="primary-btn"
+                        >
+                            Start
+                        </button>
+
+                        <button
+                            id="resetTimerBtn"
+                            class="secondary-btn"
+                        >
+                            Reset
+                        </button>
+
+                    </div>
+
+                </section>
+
+
+                <!-- Quick Notes -->
+
+                <section class="card notes-card">
+
+                    <div class="card-heading">
+
+                        <div>
+                            <span class="section-label">
+                                NOTES
+                            </span>
+
+                            <h2>💡 Quick Notes</h2>
+                        </div>
+
+                    </div>
+
+
+                    <textarea
+                        id="notes"
+                        placeholder="Write down an idea, formula, reminder, or anything you want to remember..."
+                        maxlength="2000"
+                    ></textarea>
+
+
+                    <div class="notes-footer">
+
+                        <span id="notesStatus">
+                            Your notes are saved locally.
+                        </span>
+
+                        <button
+                            id="saveNotesBtn"
+                            class="primary-btn"
+                        >
+                            Save Notes
+                        </button>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer>
+
+        <div class="footer-content">
+
+            <div>
+                <strong>📚 StudyBuddy</strong>
+
+                <p>
+                    A simple productivity tool for students.
+                </p>
+            </div>
+
+            <p class="footer-small">
+                Made with ❤️ for students
+            </p>
+
+        </div>
+
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
