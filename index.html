@@ -6,7 +6,7 @@
 
     <meta
         name="description"
-        content="StudyBuddy is a simple study companion for planning tasks, focusing, taking notes, and tracking progress."
+        content="StudyBuddy is a simple AI-powered study companion for planning tasks, focusing, taking notes, and tracking progress."
     >
 
     <title>StudyBuddy — Study Smarter</title>
@@ -16,10 +16,8 @@
 
 <body>
 
-    <!-- ================= HEADER ================= -->
-
+    <!-- Header -->
     <header class="site-header">
-
         <div class="header-content">
 
             <div class="brand">
@@ -41,23 +39,16 @@
             </button>
 
         </div>
-
     </header>
 
-
-    <!-- ================= MAIN ================= -->
 
     <main>
 
         <!-- Hero -->
-
         <section class="hero">
-
             <div class="hero-content">
 
-                <span class="hero-label">
-                    ✨ Built for students
-                </span>
+                <span class="hero-label">✨ Built for students</span>
 
                 <h2>
                     Study smarter.<br>
@@ -66,31 +57,26 @@
 
                 <p>
                     Organize your study tasks, focus with a timer,
-                    save quick notes, and see your progress — all in one place.
+                    save quick notes, create AI-powered study plans,
+                    and see your progress — all in one place.
                 </p>
 
             </div>
-
         </section>
 
 
-        <!-- ================= DASHBOARD ================= -->
-
+        <!-- Dashboard -->
         <section class="dashboard">
 
             <!-- Progress Overview -->
-
             <div class="overview-card">
 
                 <div>
-
                     <span class="overview-label">
                         TODAY'S PROGRESS
                     </span>
 
-                    <h2>
-                        Keep going! 🚀
-                    </h2>
+                    <h2>Keep going! 🚀</h2>
 
                     <p>
                         <strong id="completedTasks">0</strong>
@@ -98,7 +84,6 @@
                         <strong id="totalTasks">0</strong>
                         tasks completed
                     </p>
-
                 </div>
 
                 <div class="progress-circle">
@@ -108,8 +93,7 @@
             </div>
 
 
-            <!-- ================= TASKS ================= -->
-
+            <!-- Study Tasks -->
             <section class="card tasks-card">
 
                 <div class="card-heading">
@@ -126,7 +110,6 @@
 
 
                 <!-- Task Input -->
-
                 <div class="task-input">
 
                     <input
@@ -136,8 +119,10 @@
                         maxlength="120"
                     >
 
-                    <select id="priorityInput" aria-label="Task priority">
-
+                    <select
+                        id="priorityInput"
+                        aria-label="Task priority"
+                    >
                         <option value="high">
                             🔴 High
                         </option>
@@ -149,7 +134,6 @@
                         <option value="low">
                             🟢 Low
                         </option>
-
                     </select>
 
                     <button id="addTaskBtn">
@@ -159,8 +143,7 @@
                 </div>
 
 
-                <!-- Filters -->
-
+                <!-- Task Filters -->
                 <div class="task-toolbar">
 
                     <div class="task-filters">
@@ -195,7 +178,10 @@
 
                     </div>
 
-                    <span id="visibleTaskCount" class="task-count">
+                    <span
+                        id="visibleTaskCount"
+                        class="task-count"
+                    >
                         0 tasks
                     </span>
 
@@ -203,19 +189,15 @@
 
 
                 <!-- Task List -->
-
                 <ul id="taskList"></ul>
 
             </section>
 
 
-            <!-- ================= TWO COLUMN AREA ================= -->
-
+            <!-- Timer + Notes -->
             <div class="two-column">
 
-
                 <!-- Focus Timer -->
-
                 <section class="card timer-card">
 
                     <div class="card-heading">
@@ -235,8 +217,10 @@
                         25:00
                     </div>
 
+
                     <p class="timer-description">
-                        Take one task at a time. Stay focused for 25 minutes.
+                        Take one task at a time.
+                        Stay focused for 25 minutes.
                     </p>
 
 
@@ -262,7 +246,6 @@
 
 
                 <!-- Quick Notes -->
-
                 <section class="card notes-card">
 
                     <div class="card-heading">
@@ -304,13 +287,85 @@
 
             </div>
 
+
+            <!-- AI Study Planner -->
+            <section class="card ai-planner-card">
+
+                <div class="card-heading">
+
+                    <div>
+                        <span class="section-label">
+                            AI ASSISTANT
+                        </span>
+
+                        <h2>🤖 AI Study Planner</h2>
+                    </div>
+
+                </div>
+
+
+                <p class="ai-description">
+                    Tell StudyBuddy what you need to study and
+                    when your deadline is. The AI will create
+                    a practical study plan for you.
+                </p>
+
+
+                <div class="ai-inputs">
+
+                    <textarea
+                        id="aiGoal"
+                        placeholder="Example: I have a Python exam and need to revise functions, OOP and file handling."
+                        maxlength="500"
+                    ></textarea>
+
+
+                    <input
+                        type="text"
+                        id="aiDeadline"
+                        placeholder="Deadline (e.g. 5 days)"
+                        maxlength="50"
+                    >
+
+
+                    <button
+                        id="generatePlanBtn"
+                        class="primary-btn"
+                    >
+                        ✨ Generate Study Plan
+                    </button>
+
+                </div>
+
+
+                <!-- AI Status -->
+                <div
+                    id="aiStatus"
+                    class="ai-status"
+                ></div>
+
+
+                <!-- AI Result -->
+                <div
+                    id="aiResult"
+                    class="ai-result"
+                    hidden
+                >
+
+                    <h3>📅 Your Study Plan</h3>
+
+                    <div id="aiPlan"></div>
+
+                </div>
+
+            </section>
+
         </section>
 
     </main>
 
 
-    <!-- ================= FOOTER ================= -->
-
+    <!-- Footer -->
     <footer>
 
         <div class="footer-content">
@@ -319,9 +374,11 @@
                 <strong>📚 StudyBuddy</strong>
 
                 <p>
-                    A simple productivity tool for students.
+                    A simple AI-powered productivity tool
+                    for students.
                 </p>
             </div>
+
 
             <p class="footer-small">
                 Made with ❤️ for students

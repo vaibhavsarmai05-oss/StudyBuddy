@@ -1,8 +1,15 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
 
-    /* ==========================================
-       ELEMENTS
-       ========================================== */
+    /* =========================================
+       AI BACKEND
+    ========================================= */
+
+    const AI_API_URL = "http://127.0.0.1:8000";
+
+
+    /* =========================================
+       TASK MANAGEMENT
+    ========================================= */
 
     const taskInput = document.getElementById("taskInput");
     const priorityInput = document.getElementById("priorityInput");
@@ -11,316 +18,225 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const completedTasks = document.getElementById("completedTasks");
     const totalTasks = document.getElementById("totalTasks");
-    const progressPercentage =
-        document.getElementById("progressPercentage");
+    const progressPercentage = document.getElementById("progressPercentage");
+    const visibleTaskCount = document.getElementById("visibleTaskCount");
 
-    const progressCircle =
-        document.querySelector(".progress-circle");
+    const filterButtons = document.querySelectorAll(".filter-btn");
 
-    const visibleTaskCount =
-        document.getElementById("visibleTaskCount");
-
-    const filterButtons =
-        document.querySelectorAll(".filter-btn");
-
-    const timerDisplay =
-        document.getElementById("timer");
-
-    const startTimerBtn =
-        document.getElementById("startTimerBtn");
-
-    const resetTimerBtn =
-        document.getElementById("resetTimerBtn");
-
-    const notes =
-        document.getElementById("notes");
-
-    const saveNotesBtn =
-        document.getElementById("saveNotesBtn");
-
-    const notesStatus =
-        document.getElementById("notesStatus");
-
-    const themeToggle =
-        document.getElementById("themeToggle");
-
-
-    /* ==========================================
-       TASK STORAGE
-       ========================================== */
-
-    let tasks =
-        JSON.parse(
-            localStorage.getItem("studyBuddyTasks")
-        ) || [];
-
+    let tasks = JSON.parse(
+        localStorage.getItem("studyBuddyTasks")
+    ) || [];
 
     let currentFilter = "all";
 
 
-    /*
-       Give older tasks a default priority.
-    */
+    /* =========================================
+       NORMALIZE OLD TASK DATA
+    ========================================= */
 
-    tasks = tasks.map(function (task) {
-
-        if (
-            task.priority !== "high" &&
-            task.priority !== "medium" &&
-            task.priority !== "low"
-        ) {
-            task.priority = "medium";
-        }
-
-        return task;
-
-    });
+    tasks = tasks.map(task => ({
+        id: task.id || Date.now() + Math.random(),
+        text: task.text || "",
+        completed: Boolean(task.completed),
+        priority: ["high", "medium", "low"].includes(task.priority)
+            ? task.priority
+            : "medium"
+    }));
 
 
-    saveTasks();
-
+    /* =========================================
+       SAVE TASKS
+    ========================================= */
 
     function saveTasks() {
-
         localStorage.setItem(
             "studyBuddyTasks",
             JSON.stringify(tasks)
         );
-
     }
 
 
-    /* ==========================================
-       DISPLAY TASKS
-       ========================================== */
+    /* =========================================
+       RENDER TASKS
+    ========================================= */
 
-    function displayTasks() {
+    function renderTasks() {
 
         taskList.innerHTML = "";
 
+        let filteredTasks = tasks;
 
-        let filteredTasks = tasks.filter(
-            function (task) {
+        if (currentFilter === "active") {
+            filteredTasks = tasks.filter(task => !task.completed);
+        }
 
-                if (currentFilter === "active") {
-                    return !task.completed;
-                }
+        if (currentFilter === "completed") {
+            filteredTasks = tasks.filter(task => task.completed);
+        }
 
-                if (currentFilter === "completed") {
-                    return task.completed;
-                }
-
-                if (currentFilter === "high") {
-                    return task.priority === "high";
-                }
-
-                return true;
-
-            }
-        );
-
-
-        /* Visible task count */
-
-        visibleTaskCount.textContent =
-            filteredTasks.length +
-            (filteredTasks.length === 1
-                ? " task"
-                : " tasks");
-
-
-        /* Empty state */
-
-        if (filteredTasks.length === 0) {
-
-            const emptyState =
-                document.createElement("li");
-
-            emptyState.classList.add(
-                "empty-state"
+        if (currentFilter === "high") {
+            filteredTasks = tasks.filter(
+                task => task.priority === "high"
             );
-
-
-            const message =
-                document.createElement("div");
-
-            message.innerHTML =
-                '<div class="empty-state-icon">📚</div>' +
-                '<div>No tasks here yet.</div>';
-
-
-            emptyState.appendChild(message);
-
-            taskList.appendChild(emptyState);
-
-            updateProgress();
-
-            return;
         }
 
 
-        /* Create each task */
+        if (filteredTasks.length === 0) {
 
-        filteredTasks.forEach(
-            function (task) {
+            const emptyMessage = document.createElement("li");
 
-                const li =
-                    document.createElement("li");
+            emptyMessage.className = "empty-state";
+
+            emptyMessage.textContent =
+                tasks.length === 0
+                    ? "No study tasks yet. Add your first task above!"
+                    : "No tasks match this filter.";
+
+            taskList.appendChild(emptyMessage);
+
+        } else {
+
+            filteredTasks.forEach(task => {
+
+                const li = document.createElement("li");
+
+                li.className = "task-item";
+
+                if (task.completed) {
+                    li.classList.add("completed");
+                }
 
 
                 /* Checkbox */
 
-                const checkbox =
-                    document.createElement("input");
+                const checkbox = document.createElement("input");
 
                 checkbox.type = "checkbox";
 
-                checkbox.checked =
-                    task.completed;
+                checkbox.className = "task-checkbox";
 
+                checkbox.checked = task.completed;
 
-                /* Task text */
-
-                const span =
-                    document.createElement("span");
-
-                span.textContent =
-                    task.text;
-
-                span.classList.add(
-                    "task-text"
+                checkbox.setAttribute(
+                    "aria-label",
+                    "Mark task as completed"
                 );
 
 
-                if (task.completed) {
+                checkbox.addEventListener("change", () => {
 
-                    span.classList.add(
-                        "completed"
-                    );
+                    task.completed = checkbox.checked;
 
-                }
+                    saveTasks();
+
+                    renderTasks();
+
+                });
 
 
-                /* Priority */
+                /* Content */
 
-                const priorityBadge =
-                    document.createElement("span");
+                const content = document.createElement("div");
 
-                priorityBadge.classList.add(
-                    "priority-badge",
-                    task.priority
+                content.className = "task-content";
+
+
+                const text = document.createElement("div");
+
+                text.className = "task-text";
+
+                text.textContent = task.text;
+
+
+                const priority = document.createElement("span");
+
+                priority.className = "priority-badge";
+
+                priority.classList.add(
+                    `priority-${task.priority}`
                 );
 
 
-                if (task.priority === "high") {
+                const priorityNames = {
+                    high: "High Priority",
+                    medium: "Medium Priority",
+                    low: "Low Priority"
+                };
 
-                    priorityBadge.textContent =
-                        "🔴 High";
-
-                } else if (
-                    task.priority === "medium"
-                ) {
-
-                    priorityBadge.textContent =
-                        "🟡 Medium";
-
-                } else {
-
-                    priorityBadge.textContent =
-                        "🟢 Low";
-
-                }
+                priority.textContent =
+                    priorityNames[task.priority];
 
 
-                /* Delete */
+                content.appendChild(text);
+
+                content.appendChild(priority);
+
+
+                /* Delete button */
 
                 const deleteButton =
                     document.createElement("button");
 
-                deleteButton.textContent =
-                    "Delete";
+                deleteButton.className = "delete-task";
 
-                deleteButton.classList.add(
-                    "delete-btn"
+                deleteButton.textContent = "🗑️";
+
+                deleteButton.setAttribute(
+                    "aria-label",
+                    "Delete task"
                 );
 
 
-                /* Complete */
+                deleteButton.addEventListener("click", () => {
 
-                checkbox.addEventListener(
-                    "change",
-                    function () {
+                    tasks = tasks.filter(
+                        item => item.id !== task.id
+                    );
 
-                        task.completed =
-                            checkbox.checked;
+                    saveTasks();
 
-                        saveTasks();
+                    renderTasks();
 
-                        displayTasks();
-
-                    }
-                );
-
-
-                /* Delete */
-
-                deleteButton.addEventListener(
-                    "click",
-                    function () {
-
-                        tasks =
-                            tasks.filter(
-                                function (item) {
-                                    return item !== task;
-                                }
-                            );
-
-                        saveTasks();
-
-                        displayTasks();
-
-                    }
-                );
+                });
 
 
                 li.appendChild(checkbox);
 
-                li.appendChild(span);
-
-                li.appendChild(priorityBadge);
+                li.appendChild(content);
 
                 li.appendChild(deleteButton);
 
                 taskList.appendChild(li);
 
-            }
-        );
+            });
+
+        }
 
 
         updateProgress();
 
+        updateVisibleTaskCount(filteredTasks.length);
+
     }
 
 
-    /* ==========================================
+    /* =========================================
        ADD TASK
-       ========================================== */
+    ========================================= */
 
     function addTask() {
 
-        const text =
-            taskInput.value.trim();
+        const text = taskInput.value.trim();
 
-
-        if (text === "") {
-
+        if (!text) {
             taskInput.focus();
-
             return;
         }
 
 
         const newTask = {
+
+            id: Date.now(),
 
             text: text,
 
@@ -335,44 +251,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         saveTasks();
 
-
         taskInput.value = "";
 
+        priorityInput.value = "medium";
 
-        /*
-           Return to All after adding.
-        */
-
-        currentFilter = "all";
-
-
-        filterButtons.forEach(
-            function (button) {
-
-                button.classList.remove(
-                    "active"
-                );
-
-            }
-        );
-
-
-        const allButton =
-            document.querySelector(
-                '[data-filter="all"]'
-            );
-
-
-        if (allButton) {
-
-            allButton.classList.add(
-                "active"
-            );
-
-        }
-
-
-        displayTasks();
+        renderTasks();
 
         taskInput.focus();
 
@@ -385,126 +268,119 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
 
-    /* Enter key */
-
     taskInput.addEventListener(
         "keydown",
-        function (event) {
+        event => {
 
             if (event.key === "Enter") {
-
                 addTask();
-
             }
 
         }
     );
 
 
-    /* ==========================================
+    /* =========================================
        FILTERS
-       ========================================== */
+    ========================================= */
 
-    filterButtons.forEach(
-        function (button) {
+    filterButtons.forEach(button => {
 
-            button.addEventListener(
-                "click",
-                function () {
+        button.addEventListener("click", () => {
 
-                    currentFilter =
-                        button.dataset.filter;
+            filterButtons.forEach(btn => {
+                btn.classList.remove("active");
+            });
 
+            button.classList.add("active");
 
-                    filterButtons.forEach(
-                        function (btn) {
+            currentFilter =
+                button.dataset.filter;
 
-                            btn.classList.remove(
-                                "active"
-                            );
+            renderTasks();
 
-                        }
-                    );
+        });
+
+    });
 
 
-                    button.classList.add(
-                        "active"
-                    );
-
-
-                    displayTasks();
-
-                }
-            );
-
-        }
-    );
-
-
-    /* ==========================================
+    /* =========================================
        PROGRESS
-       ========================================== */
+    ========================================= */
 
     function updateProgress() {
 
-        const total =
-            tasks.length;
-
+        const total = tasks.length;
 
         const completed =
             tasks.filter(
-                function (task) {
-                    return task.completed;
-                }
+                task => task.completed
             ).length;
 
 
-        completedTasks.textContent =
-            completed;
+        completedTasks.textContent = completed;
 
-        totalTasks.textContent =
-            total;
+        totalTasks.textContent = total;
 
 
-        let percentage = 0;
-
-
-        if (total > 0) {
-
-            percentage =
-                Math.round(
+        const percentage =
+            total === 0
+                ? 0
+                : Math.round(
                     (completed / total) * 100
                 );
 
-        }
-
 
         progressPercentage.textContent =
-            percentage + "%";
+            `${percentage}%`;
 
 
         const degrees =
-            percentage * 3.6;
+            (percentage / 100) * 360;
 
 
-        progressCircle.style.background =
+        document.querySelector(
+            ".progress-circle"
+        ).style.background =
             `conic-gradient(
-                var(--primary) ${degrees}deg,
-                var(--border) ${degrees}deg
+                white ${degrees}deg,
+                rgba(255, 255, 255, 0.2) ${degrees}deg
             )`;
 
     }
 
 
-    /* ==========================================
+    /* =========================================
+       VISIBLE TASK COUNT
+    ========================================= */
+
+    function updateVisibleTaskCount(count) {
+
+        visibleTaskCount.textContent =
+            `${count} ${count === 1 ? "task" : "tasks"}`;
+
+    }
+
+
+    /* =========================================
        FOCUS TIMER
-       ========================================== */
+    ========================================= */
 
-    let timeLeft =
-        25 * 60;
+    const timerDisplay =
+        document.getElementById("timer");
 
-    let timerInterval =
-        null;
+    const startTimerBtn =
+        document.getElementById("startTimerBtn");
+
+    const resetTimerBtn =
+        document.getElementById("resetTimerBtn");
+
+
+    const DEFAULT_TIME = 25 * 60;
+
+    let timeLeft = DEFAULT_TIME;
+
+    let timerInterval = null;
 
 
     function updateTimerDisplay() {
@@ -517,98 +393,103 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         timerDisplay.textContent =
-            String(minutes).padStart(2, "0") +
-            ":" +
-            String(seconds).padStart(2, "0");
+            `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+
+    }
+
+
+    function startTimer() {
+
+        if (timerInterval !== null) {
+            return;
+        }
+
+
+        startTimerBtn.textContent = "Pause";
+
+
+        timerInterval =
+            setInterval(() => {
+
+                if (timeLeft > 0) {
+
+                    timeLeft--;
+
+                    updateTimerDisplay();
+
+                } else {
+
+                    clearInterval(timerInterval);
+
+                    timerInterval = null;
+
+                    startTimerBtn.textContent =
+                        "Start";
+
+                    alert(
+                        "🎉 Focus session complete! Take a short break."
+                    );
+
+                }
+
+            }, 1000);
+
+    }
+
+
+    function pauseTimer() {
+
+        clearInterval(timerInterval);
+
+        timerInterval = null;
+
+        startTimerBtn.textContent =
+            "Start";
 
     }
 
 
     startTimerBtn.addEventListener(
         "click",
-        function () {
+        () => {
 
             if (timerInterval === null) {
-
-                timerInterval =
-                    setInterval(
-                        function () {
-
-                            if (timeLeft > 0) {
-
-                                timeLeft--;
-
-                                updateTimerDisplay();
-
-                            } else {
-
-                                clearInterval(
-                                    timerInterval
-                                );
-
-                                timerInterval = null;
-
-                                startTimerBtn.textContent =
-                                    "Start";
-
-                                alert(
-                                    "🎉 Focus session complete!"
-                                );
-
-                            }
-
-                        },
-                        1000
-                    );
-
-
-                startTimerBtn.textContent =
-                    "Pause";
-
+                startTimer();
             } else {
-
-                clearInterval(
-                    timerInterval
-                );
-
-                timerInterval = null;
-
-                startTimerBtn.textContent =
-                    "Start";
-
+                pauseTimer();
             }
 
         }
     );
 
 
-    /* Reset */
-
     resetTimerBtn.addEventListener(
         "click",
-        function () {
+        () => {
 
-            clearInterval(
-                timerInterval
-            );
+            pauseTimer();
 
-            timerInterval = null;
-
-            timeLeft =
-                25 * 60;
+            timeLeft = DEFAULT_TIME;
 
             updateTimerDisplay();
-
-            startTimerBtn.textContent =
-                "Start";
 
         }
     );
 
 
-    /* ==========================================
+    /* =========================================
        NOTES
-       ========================================== */
+    ========================================= */
+
+    const notes =
+        document.getElementById("notes");
+
+    const saveNotesBtn =
+        document.getElementById("saveNotesBtn");
+
+    const notesStatus =
+        document.getElementById("notesStatus");
+
 
     const savedNotes =
         localStorage.getItem(
@@ -617,16 +498,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     if (savedNotes !== null) {
-
-        notes.value =
-            savedNotes;
-
+        notes.value = savedNotes;
     }
 
 
     saveNotesBtn.addEventListener(
         "click",
-        function () {
+        () => {
 
             localStorage.setItem(
                 "studyBuddyNotes",
@@ -635,26 +513,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
             notesStatus.textContent =
-                "✓ Notes saved locally";
+                "✓ Notes saved locally.";
 
 
-            setTimeout(
-                function () {
+            setTimeout(() => {
 
-                    notesStatus.textContent =
-                        "Your notes are saved locally.";
+                notesStatus.textContent =
+                    "Your notes are saved locally.";
 
-                },
-                2000
-            );
+            }, 2000);
 
         }
     );
 
 
-    /* ==========================================
+    /* =========================================
        DARK MODE
-       ========================================== */
+    ========================================= */
+
+    const themeToggle =
+        document.getElementById("themeToggle");
+
 
     const savedTheme =
         localStorage.getItem(
@@ -665,32 +544,27 @@ document.addEventListener("DOMContentLoaded", function () {
     if (savedTheme === "dark") {
 
         document.body.classList.add(
-            "dark"
+            "dark-mode"
         );
 
-        themeToggle.textContent =
-            "☀️";
+        themeToggle.textContent = "☀️";
 
     }
 
 
     themeToggle.addEventListener(
         "click",
-        function () {
+        () => {
 
             document.body.classList.toggle(
-                "dark"
+                "dark-mode"
             );
 
 
             const isDark =
                 document.body.classList.contains(
-                    "dark"
+                    "dark-mode"
                 );
-
-
-            themeToggle.textContent =
-                isDark ? "☀️" : "🌙";
 
 
             localStorage.setItem(
@@ -698,16 +572,183 @@ document.addEventListener("DOMContentLoaded", function () {
                 isDark ? "dark" : "light"
             );
 
+
+            themeToggle.textContent =
+                isDark ? "☀️" : "🌙";
+
         }
     );
 
 
-    /* ==========================================
+    /* =========================================
+       AI STUDY PLANNER
+    ========================================= */
+
+    const aiGoal =
+        document.getElementById("aiGoal");
+
+    const aiDeadline =
+        document.getElementById("aiDeadline");
+
+    const generatePlanBtn =
+        document.getElementById(
+            "generatePlanBtn"
+        );
+
+    const aiStatus =
+        document.getElementById("aiStatus");
+
+    const aiResult =
+        document.getElementById("aiResult");
+
+    const aiPlan =
+        document.getElementById("aiPlan");
+
+
+    async function generateStudyPlan() {
+
+        const goal =
+            aiGoal.value.trim();
+
+        const deadline =
+            aiDeadline.value.trim();
+
+
+        /* Validate input */
+
+        if (!goal) {
+
+            aiStatus.textContent =
+                "Please enter what you need to study.";
+
+            aiGoal.focus();
+
+            return;
+
+        }
+
+
+        if (!deadline) {
+
+            aiStatus.textContent =
+                "Please enter your deadline.";
+
+            aiDeadline.focus();
+
+            return;
+
+        }
+
+
+        /* Loading state */
+
+        generatePlanBtn.disabled = true;
+
+        generatePlanBtn.textContent =
+            "⏳ Creating your plan...";
+
+
+        aiStatus.textContent =
+            "StudyBuddy AI is creating your study plan...";
+
+
+        aiResult.hidden = true;
+
+        aiPlan.textContent = "";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `${AI_API_URL}/generate-plan`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            goal: goal,
+                            deadline: deadline
+                        })
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    `Server returned ${response.status}`
+                );
+
+            }
+
+
+            const data =
+                await response.json();
+
+
+            if (!data.plan) {
+
+                throw new Error(
+                    "No study plan was returned."
+                );
+
+            }
+
+
+            /* Display AI result */
+
+            aiPlan.textContent =
+                data.plan;
+
+            aiResult.hidden = false;
+
+            aiStatus.textContent =
+                "✓ Your study plan is ready!";
+
+
+        } catch (error) {
+
+            console.error(
+                "AI planner error:",
+                error
+            );
+
+
+            aiStatus.textContent =
+                "⚠️ Could not connect to the AI backend. Make sure your FastAPI server is running.";
+
+            aiResult.hidden = true;
+
+        } finally {
+
+            generatePlanBtn.disabled =
+                false;
+
+            generatePlanBtn.textContent =
+                "✨ Generate Study Plan";
+
+        }
+
+    }
+
+
+    generatePlanBtn.addEventListener(
+        "click",
+        generateStudyPlan
+    );
+
+
+    /* =========================================
        INITIALIZE
-       ========================================== */
+    ========================================= */
 
     updateTimerDisplay();
 
-    displayTasks();
+    renderTasks();
 
 });
