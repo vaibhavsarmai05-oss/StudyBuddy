@@ -12,7 +12,7 @@
 
 ### Dark Mode
 
-![StudyBuddy Dark Mode](screenshots/dark-mode.png)
+![StudyBuddy Dark Mode](screenshots/dark_dashboard.png)
 
 ---
 
